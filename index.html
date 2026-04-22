@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prezzario MB — Database Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --surface: #ffffff;
+      --surface-2: #f5f0e4;
+      --ink: #1f1d1a;
+      --muted: #807b72;
+      --line: #e4dfd3;
+      --line-strong: #c9c0a8;
+      --accent: #c14a22;
+      --accent-hover: #a33d1b;
+      --green: #3f7a4e;
+      --orange: #d4a43a;
+      --blue: #1e5f7a;
+      --claude-bg: #fff6e0;
+      --claude-border: #d4a43a;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Geist', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 14.5px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ============ LOGIN ============ */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, var(--bg) 0%, var(--surface-2) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .login-box {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 40px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow);
+    }
+
+    .login-title {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 42px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .login-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .login-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .login-field {
+      margin-bottom: 16px;
+    }
+
+    .login-field label {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .login-field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--bg);
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .login-field input:focus {
+      border-color: var(--accent);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+
+    .login-btn:hover {
+      background: var(--accent);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+
+    .login-error {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: rgba(193, 74, 34, 0.08);
+      border-left: 3px solid var(--accent);
+      color: var(--accent);
+      font-size: 13px;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .login-error.visible {
+      display: block;
+    }
+
+    /* ============ APP LAYOUT ============ */
+    #app {
+      display: none;
+    }
+
+    #app.ready {
+      display: grid;
+    }
+
+    #app {
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "header header"
+        "sidebar main";
+      height: 100vh;
+    }
+
+    /* ============ HEADER ============ */
+    .header {
+      grid-area: header;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .brand-mark em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      border-left: 1px solid var(--line-strong);
+      padding-left: 12px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+      }
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px 6px 8px;
+      background: var(--surface-2);
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .user-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .user-avatar.francesco {
+      background: var(--accent);
+    }
+
+    .user-avatar.alessandro {
+      background: var(--blue);
+    }
+
+    .btn-logout {
+      background: none;
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+
+    .btn-logout:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-history {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      transition: all 0.15s;
+    }
+
+    .btn-history:hover {
+      background: var(--ink);
+      color: var(--bg);
+    }
+
+    /* ============ SIDEBAR ============ */
+    .sidebar {
+      grid-area: sidebar;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      overflow-y: auto;
+      padding: 20px 16px;
+    }
+
+    .sidebar h3 {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 24px 0 10px;
+      padding: 0 6px;
+    }
+
+    .sidebar h3:first-child {
+      margin-top: 0;
+    }
+
+    .sidebar .search-box {
+      margin-bottom: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--bg);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    .stats-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .stat-mini {
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-mini .num {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .stat-mini .lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .stat-mini.accent .num {
+      color: var(--accent);
+    }
+
+    .stat-mini.green .num {
+      color: var(--green);
+    }
+
+    .stat-mini.orange .num {
+      color: var(--orange);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: none;
+      border: none;
+      text-align: left;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.12s;
+    }
+
+    .filter-btn:hover {
+      background: var(--surface-2);
+    }
+
+    .filter-btn.active {
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 500;
+    }
+
+    .filter-btn .count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      background: var(--line);
+      padding: 2px 6px;
+      border-radius: 10px;
+      color: var(--muted);
+    }
+
+    .filter-btn.active .count {
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--bg);
+    }
+
+    .filter-btn.claude-style {
+      color: #b07914;
+      font-style: italic;
+    }
+
+    .filter-btn.claude-style.active {
+      color: white;
+      background: #b07914;
+    }
+
+    .btn-reset {
+      margin-top: 12px;
+      width: 100%;
+      padding: 8px;
+      background: none;
+      border: 1px dashed var(--line-strong);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-reset:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ============ MAIN ============ */
+    .main {
+      grid-area: main;
+      overflow-y: auto;
+      padding: 24px 32px 60px;
+    }
+
+    .main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--ink);
+    }
+
+    .main-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px;
+      line-height: 1;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+    }
+
+    .main-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .main-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .cat-section {
+      margin-bottom: 36px;
+    }
+
+    .cat-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cat-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .cat-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .voce-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: start;
+      transition: box-shadow 0.15s, transform 0.1s;
+      position: relative;
+    }
+
+    .voce-card:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .voce-card.claude {
+      background: var(--claude-bg);
+      border-left: 4px solid var(--claude-border);
+    }
+
+    .voce-card.just-updated {
+      animation: highlight 1.5s ease;
+    }
+
+    @keyframes highlight {
+      0% {
+        background: rgba(63, 122, 78, 0.15);
+      }
+
+      100% {
+        background: var(--surface);
+      }
+    }
+
+    .voce-card.claude.just-updated {
+      animation: highlightClaude 1.5s ease;
+    }
+
+    @keyframes highlightClaude {
+      0% {
+        background: rgba(63, 122, 78, 0.25);
+      }
+
+      100% {
+        background: var(--claude-bg);
+      }
+    }
+
+    .voce-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+
+    .voce-card.claude .voce-name {
+      font-style: italic;
+    }
+
+    .voce-descr {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .voce-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: var(--bg);
+    }
+
+    .tag.origin-csv {
+      color: var(--blue);
+      border-color: rgba(30, 95, 122, 0.3);
+      background: rgba(30, 95, 122, 0.06);
+    }
+
+    .tag.origin-mb {
+      color: var(--accent);
+      border-color: rgba(193, 74, 34, 0.3);
+      background: rgba(193, 74, 34, 0.05);
+    }
+
+    .tag.origin-hybrid {
+      color: var(--green);
+      border-color: rgba(63, 122, 78, 0.3);
+      background: rgba(63, 122, 78, 0.08);
+    }
+
+    .tag.origin-claude {
+      color: #b07914;
+      border-color: var(--claude-border);
+      background: rgba(212, 164, 58, 0.15);
+    }
+
+    .tag.pri-alta {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .tag.pri-media {
+      background: var(--orange);
+      color: var(--ink);
+      border-color: var(--orange);
+    }
+
+    .tag.pri-bassa {
+      background: var(--muted);
+      color: white;
+      border-color: var(--muted);
+    }
+
+    .tag.bonus {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .tag.missing {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .razionale {
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 4px;
+      font-size: 12.5px;
+      color: #6d5519;
+      line-height: 1.5;
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+
+    .voce-right {
+      text-align: right;
+      min-width: 120px;
+    }
+
+    .voce-price {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .voce-price.missing {
+      font-size: 13px;
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    .voce-card.claude .voce-price {
+      color: #b07914;
+      font-style: italic;
+    }
+
+    .voce-unit {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 5px;
+    }
+
+    .decision-row {
+      grid-column: 1 / -1;
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--line);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .dec-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .dec-btn {
+      padding: 6px 11px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 500;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .dec-btn:hover {
+      border-color: var(--ink);
+    }
+
+    .dec-btn.active-ok {
+      background: var(--green);
+      color: white;
+      border-color: var(--green);
+    }
+
+    .dec-btn.active-no {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .dec-btn.active-review {
+      background: var(--orange);
+      color: var(--ink);
+      border-color: var(--orange);
+    }
+
+    .price-input {
+      width: 90px;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      text-align: right;
+      background: var(--surface);
+    }
+
+    .price-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .note-input {
+      flex: 1;
+      min-width: 180px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 12.5px;
+      background: var(--surface);
+    }
+
+    .note-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .last-modified {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-left: auto;
+    }
+
+    /* ============ HISTORY DRAWER ============ */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      display: none;
+    }
+
+    .drawer-overlay.open {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(480px, 90vw);
+      height: 100vh;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      z-index: 101;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1.5px solid var(--ink);
+    }
+
+    .drawer-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px;
+      font-weight: 400;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0 8px;
+    }
+
+    .history-item {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-when {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .history-who {
+      font-weight: 600;
+    }
+
+    .history-who.francesco {
+      color: var(--accent);
+    }
+
+    .history-who.alessandro {
+      color: var(--blue);
+    }
+
+    .history-change {
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .history-voce {
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    /* ============ TOAST ============ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--ink);
+      color: white;
+      padding: 10px 20px;
+      font-size: 13px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: all 0.3s;
+      pointer-events: none;
+      font-family: 'JetBrains Mono', monospace;
+      z-index: 200;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.error {
+      background: var(--accent);
+    }
+
+    /* ============ LOADING ============ */
+    .loading-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px) {
+      #app.ready {
+        grid-template-columns: 1fr;
+        grid-template-areas: "header" "main";
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        padding: 16px 20px 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============ LOGIN ============ -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-box">
+      <div class="login-title">Prezzario <em>MB</em></div>
+      <div class="login-subtitle">Accedi per continuare</div>
+      <form id="loginForm">
+        <div class="login-field">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required autocomplete="email" placeholder="tu@email.com">
+        </div>
+        <div class="login-field">
+          <label>Password</label>
+          <input type="password" id="loginPassword" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn" id="loginBtn">Entra</button>
+        <div class="login-error" id="loginError"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ APP ============ -->
+  <div id="app">
+
+    <header class="header">
+      <div class="brand">
+        <span class="brand-mark">Prezzario <em>MB</em></span>
+        <span class="brand-tag">Database Online · v2.0</span>
+      </div>
+      <div class="header-right">
+        <div class="live-indicator">
+          <span class="live-dot"></span>
+          <span>Live</span>
+        </div>
+        <button class="btn-history" onclick="openHistory()">📜 Cronologia</button>
+        <div class="user-badge">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span id="userName">...</span>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Esci</button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <h3>Ricerca</h3>
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="Cerca voce...">
+      </div>
+
+      <h3>Totali</h3>
+      <div class="stats-mini">
+        <div class="stat-mini">
+          <div class="num" id="statTotal">-</div>
+          <div class="lbl">totali</div>
+        </div>
+        <div class="stat-mini green">
+          <div class="num" id="statOk">-</div>
+          <div class="lbl">con prezzo</div>
+        </div>
+        <div class="stat-mini accent">
+          <div class="num" id="statMissing">-</div>
+          <div class="lbl">da prezzare</div>
+        </div>
+        <div class="stat-mini orange">
+          <div class="num" id="statClaude">-</div>
+          <div class="lbl">proposte</div>
+        </div>
+      </div>
+
+      <h3>Vista rapida</h3>
+      <div class="filter-group" id="quickFilters">
+        <button class="filter-btn active" data-quick="all">Tutte le voci <span class="count"
+            id="cntAll">0</span></button>
+        <button class="filter-btn" data-quick="missing">⚠ Da prezzare <span class="count"
+            id="cntMissing">0</span></button>
+        <button class="filter-btn claude-style" data-quick="claude">★ Proposte Claude <span class="count"
+            id="cntClaude">0</span></button>
+        <button class="filter-btn" data-quick="bonus">Con bonus fiscali <span class="count"
+            id="cntBonus">0</span></button>
+      </div>
+
+      <h3>Super-categoria</h3>
+      <div class="filter-group" id="superCatFilters"></div>
+
+      <h3>Categoria</h3>
+      <div class="filter-group" id="catFilters" style="max-height: 300px; overflow-y: auto;"></div>
+
+      <button class="btn-reset" onclick="resetFilters()">× Resetta filtri</button>
+    </aside>
+
+    <main class="main">
+      <div class="main-header">
+        <div class="main-title" id="mainTitle">Tutte le <em>voci</em></div>
+        <div class="main-count" id="mainCount">Caricamento...</div>
+      </div>
+      <div id="content" class="loading-main">Caricamento dati dal database...</div>
+    </main>
+
+  </div>
+
+  <!-- ============ HISTORY DRAWER ============ -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeHistory()"></div>
+  <div class="drawer" id="historyDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title">Cronologia</div>
+      <button class="btn-close" onclick="closeHistory()">×</button>
+    </div>
+    <div id="historyContent">Caricamento...</div>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ============================================================
+    // CONFIGURAZIONE SUPABASE
+    // ============================================================
+    // ============================================================
+    // ⚠️⚠️⚠️  CONFIGURAZIONE - LEGGI ATTENTAMENTE  ⚠️⚠️⚠️
+    // ============================================================
+    // 1. Vai su: https://supabase.com/dashboard/project/pwidhcxyyldtlagjpjkn/settings/api-keys
+    // 2. Copia la chiave "anon / public" (NON service_role!)
+    // 3. Sostituisci INCOLLA_QUI_LA_TUA_CHIAVE qui sotto con la tua chiave
+    // 4. Salva questo file
+    // ============================================================
+
+    const SUPABASE_URL = 'https://pwidhcxyyldtlagjpjkn.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_JZ7igZlq6ktkSFAxmN3_-Q_Ec22A9Wv';
+
+    // Verifica che la chiave sia stata configurata (accetta sia vecchio JWT sia nuovo sb_publishable_)
+    const keyValid = SUPABASE_ANON_KEY !== 'INCOLLA_QUI_LA_TUA_CHIAVE_ANON_PUBLIC'
+      && (SUPABASE_ANON_KEY.startsWith('sb_publishable_') || SUPABASE_ANON_KEY.startsWith('eyJ'));
+
+    if (!keyValid) {
+      document.body.innerHTML = `
+    <div style="max-width:600px;margin:80px auto;padding:40px;font-family:system-ui;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1)">
+      <h1 style="font-size:28px;color:#c14a22;margin-bottom:20px">⚠️ Chiave API non configurata</h1>
+      <p>La chiave Supabase nel file non è valida o è stata troncata.</p>
+      <p>Apri <a href="https://supabase.com/dashboard/project/pwidhcxyyldtlagjpjkn/settings/api-keys" target="_blank">dashboard API keys</a>, copia la chiave <b>Publishable</b> intera, incollala nel file.</p>
+    </div>`;
+      throw new Error('Supabase key not configured');
+    }
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ============================================================
+    // STATE
+    // ============================================================
+    let currentUser = null;
+    let currentProfile = null;
+    let allVoci = [];
+    let allDecisioni = {}; // voce_id -> { decisione, prezzo_nuovo, appunto }
+    let filters = {
+      search: '',
+      quick: 'all',
+      superCat: null,
+      cat: null,
+    };
+
+    // ============================================================
+    // AUTH
+    // ============================================================
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('loginError');
+
+      btn.disabled = true;
+      btn.textContent = 'Attendi...';
+      err.classList.remove('visible');
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+      err.textContent = 'Errore login: ' + error.message;
+      console.error('Supabase login error:', error);
+        err.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Entra';
+        return;
+      }
+
+      currentUser = data.user;
+      await afterLogin();
+    });
+
+    async function afterLogin() {
+      // Carica profilo
+      const { data: profile } = await supabase
+        .from('utenti_profili')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      currentProfile = profile || { nome_display: currentUser.email.split('@')[0], ruolo: 'editor' };
+
+      // UI header
+      const name = currentProfile.nome_display;
+      document.getElementById('userName').textContent = name;
+      const avatar = document.getElementById('userAvatar');
+      avatar.textContent = name[0].toUpperCase();
+      avatar.className = 'user-avatar ' + name.toLowerCase();
+
+      // Mostra app
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('app').classList.add('ready');
+
+      // Carica dati
+      await loadVoci();
+      await loadDecisioni();
+      setupRealtime();
+      render();
+    }
+
+    async function doLogout() {
+      await supabase.auth.signOut();
+      window.location.reload();
+    }
+
+    // Check se già loggato
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        currentUser = session.user;
+        afterLogin();
+      }
+    })();
+
+    // ============================================================
+    // DATA LOADING
+    // ============================================================
+    async function loadVoci() {
+      const { data, error } = await supabase
+        .from('voci')
+        .select('*')
+        .order('categoria')
+        .order('id');
+
+      if (error) { toast('Errore caricamento voci: ' + error.message, true); return; }
+      allVoci = data;
+      updateStats();
+      buildFilters();
+    }
+
+    async function loadDecisioni() {
+      const { data } = await supabase
+        .from('decisioni_revisione')
+        .select('*')
+        .eq('utente_id', currentUser.id);
+
+      allDecisioni = {};
+      (data || []).forEach(d => { allDecisioni[d.voce_id] = d; });
+    }
+
+    // ============================================================
+    // REALTIME
+    // ============================================================
+    function setupRealtime() {
+      // Subscribe a cambiamenti sulla tabella voci
+      supabase
+        .channel('voci_changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'voci' },
+          async (payload) => {
+            if (payload.eventType === 'UPDATE') {
+              const idx = allVoci.findIndex(v => v.id === payload.new.id);
+              if (idx >= 0) {
+                allVoci[idx] = payload.new;
+                render(payload.new.id);
+                updateStats();
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      // Subscribe a cambiamenti sulla tabella decisioni (non mie)
+      supabase
+        .channel('decisioni_changes')
+        .on('postgres_changes',
+          { event: '*', schema: 'public', table: 'decisioni_revisione' },
+          () => { /* potremmo aggiornare contatori condivisi un domani */ }
+        )
+        .subscribe();
+    }
+
+    // ============================================================
+    // FILTERS & STATS
+    // ============================================================
+    function updateStats() {
+      const total = allVoci.length;
+      const ok = allVoci.filter(v => v.prezzo != null).length;
+      const missing = total - ok;
+      const claude = allVoci.filter(v => v.fonte && v.fonte.startsWith('proposta_')).length;
+      const bonus = allVoci.filter(v => v.bonus_applicabili && v.bonus_applicabili.length).length;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statOk').textContent = ok;
+      document.getElementById('statMissing').textContent = missing;
+      document.getElementById('statClaude').textContent = claude;
+
+      document.getElementById('cntAll').textContent = total;
+      document.getElementById('cntMissing').textContent = missing;
+      document.getElementById('cntClaude').textContent = claude;
+      document.getElementById('cntBonus').textContent = bonus;
+    }
+
+    function buildFilters() {
+      // Super-categorie
+      const superCats = {};
+      const cats = {};
+      allVoci.forEach(v => {
+        superCats[v.super_categoria] = (superCats[v.super_categoria] || 0) + 1;
+        cats[v.categoria] = (cats[v.categoria] || 0) + 1;
+      });
+
+      const scEl = document.getElementById('superCatFilters');
+      const scLabels = {
+        'impianti': 'Impianti',
+        'opere_murarie': 'Opere murarie',
+        'finiture': 'Finiture',
+        'esterno': 'Esterno',
+        'servizi': 'Servizi',
+      };
+      scEl.innerHTML = Object.entries(superCats)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, n]) =>
+          `<button class="filter-btn" data-supercat="${k}">${scLabels[k] || k} <span class="count">${n}</span></button>`
+        ).join('');
+
+      const catEl = document.getElementById('catFilters');
+      catEl.innerHTML = Object.entries(cats)
+        .sort((a, b) => b[1] - a[1])
+        .map(([k, n]) =>
+          `<button class="filter-btn" data-cat="${escapeAttr(k)}">${escapeHtml(k)} <span class="count">${n}</span></button>`
+        ).join('');
+
+      // Listeners
+      scEl.querySelectorAll('[data-supercat]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filters.superCat = filters.superCat === btn.dataset.supercat ? null : btn.dataset.supercat;
+          filters.cat = null;
+          updateFilterButtonsUI();
+          render();
+        });
+      });
+
+      catEl.querySelectorAll('[data-cat]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filters.cat = filters.cat === btn.dataset.cat ? null : btn.dataset.cat;
+          updateFilterButtonsUI();
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-quick]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          filters.quick = btn.dataset.quick;
+          updateFilterButtonsUI();
+          render();
+        });
+      });
+
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        filters.search = e.target.value.toLowerCase();
+        render();
+      });
+
+      updateFilterButtonsUI();
+    }
+
+    function updateFilterButtonsUI() {
+      document.querySelectorAll('[data-quick]').forEach(b => {
+        b.classList.toggle('active', b.dataset.quick === filters.quick);
+      });
+      document.querySelectorAll('[data-supercat]').forEach(b => {
+        b.classList.toggle('active', b.dataset.supercat === filters.superCat);
+      });
+      document.querySelectorAll('[data-cat]').forEach(b => {
+        b.classList.toggle('active', b.dataset.cat === filters.cat);
+      });
+    }
+
+    function resetFilters() {
+      filters = { search: '', quick: 'all', superCat: null, cat: null };
+      document.getElementById('searchInput').value = '';
+      updateFilterButtonsUI();
+      render();
+    }
+
+    function getFiltered() {
+      return allVoci.filter(v => {
+        if (filters.search) {
+          const hay = (v.voce + ' ' + (v.descrizione_breve || '') + ' ' + v.categoria).toLowerCase();
+          if (!hay.includes(filters.search)) return false;
+        }
+        if (filters.quick === 'missing' && v.prezzo != null) return false;
+        if (filters.quick === 'claude' && !(v.fonte && v.fonte.startsWith('proposta_'))) return false;
+        if (filters.quick === 'bonus' && !(v.bonus_applicabili && v.bonus_applicabili.length)) return false;
+        if (filters.superCat && v.super_categoria !== filters.superCat) return false;
+        if (filters.cat && v.categoria !== filters.cat) return false;
+        return true;
+      });
+    }
+
+    // ============================================================
+    // RENDER
+    // ============================================================
+    function render(justUpdatedId = null) {
+      const voci = getFiltered();
+      const main = document.getElementById('content');
+
+      // Titolo
+      let title = 'Tutte le <em>voci</em>';
+      if (filters.quick === 'missing') title = 'Voci da <em>prezzare</em>';
+      else if (filters.quick === 'claude') title = 'Proposte <em>Claude</em>';
+      else if (filters.quick === 'bonus') title = 'Voci con <em>bonus fiscali</em>';
+      if (filters.cat) title = '<em>' + escapeHtml(filters.cat) + '</em>';
+      else if (filters.superCat) {
+        const labels = { impianti: 'Impianti', opere_murarie: 'Opere murarie', finiture: 'Finiture', esterno: 'Esterno', servizi: 'Servizi' };
+        title = '<em>' + (labels[filters.superCat] || filters.superCat) + '</em>';
+      }
+      document.getElementById('mainTitle').innerHTML = title;
+      document.getElementById('mainCount').textContent = voci.length + ' voci';
+
+      if (voci.length === 0) {
+        main.innerHTML = '<div class="loading-main">Nessuna voce corrisponde ai filtri</div>';
+        main.classList.remove('loading-main');
+        return;
+      }
+      main.classList.remove('loading-main');
+
+      // Raggruppa per categoria
+      const groups = {};
+      voci.forEach(v => {
+        if (!groups[v.categoria]) groups[v.categoria] = [];
+        groups[v.categoria].push(v);
+      });
+
+      let html = '';
+      Object.keys(groups).sort().forEach(cat => {
+        const items = groups[cat];
+        const nClaude = items.filter(v => v.fonte && v.fonte.startsWith('proposta_')).length;
+        const nMissing = items.filter(v => v.prezzo == null).length;
+        html += `<section class="cat-section">
+      <div class="cat-heading">
+        <div class="cat-name">${escapeHtml(cat)}</div>
+        <div class="cat-meta">${items.length} voci${nClaude ? ' · ' + nClaude + ' proposte' : ''}${nMissing ? ' · ' + nMissing + ' da prezzare' : ''}</div>
+      </div>`;
+        items.forEach(v => {
+          html += renderVoce(v, v.id === justUpdatedId);
+        });
+        html += '</section>';
+      });
+      main.innerHTML = html;
+
+      attachListeners();
+    }
+
+    function renderVoce(v, justUpdated) {
+      const isClaude = v.fonte && v.fonte.startsWith('proposta_');
+      const hasPrice = v.prezzo != null;
+      const dec = allDecisioni[v.id] || {};
+
+      let cls = 'voce-card';
+      if (isClaude) cls += ' claude';
+      if (justUpdated) cls += ' just-updated';
+
+      let origin = '';
+      if (v.fonte === 'csv_fratello') origin = '<span class="tag origin-csv">Alessandro</span>';
+      else if (v.fonte === 'ibrido') origin = '<span class="tag origin-hybrid">ibrido</span>';
+      else if (v.fonte === 'preventivi_mb') origin = '<span class="tag origin-mb">preventivi MB</span>';
+      else if (isClaude) origin = '<span class="tag origin-claude">★ Claude</span>';
+
+      const pri = isClaude && v.priorita ? `<span class="tag pri-${v.priorita}">${v.priorita}</span>` : '';
+      const bonus = (v.bonus_applicabili || []).map(b => `<span class="tag bonus">${b.replace(/_/g, ' ')}</span>`).join('');
+      const missing = !hasPrice ? '<span class="tag missing">da prezzare</span>' : '';
+
+      const razionale = isClaude && v.razionale_proposta ?
+        `<div class="razionale">${escapeHtml(v.razionale_proposta)}</div>` : '';
+
+      const price = hasPrice
+        ? `<div class="voce-price">€ ${fmtNum(v.prezzo)}</div>`
+        : `<div class="voce-price missing">da prezzare</div>`;
+
+      const lastMod = v.updated_at ?
+        `<span class="last-modified">agg. ${fmtRelative(v.updated_at)}</span>` : '';
+
+      return `<div class="${cls}" data-voce-id="${v.id}">
+    <div>
+      <div class="voce-name">${escapeHtml(v.voce)}</div>
+      ${v.descrizione_breve && v.descrizione_breve !== v.voce ? `<div class="voce-descr">${escapeHtml(v.descrizione_breve)}</div>` : ''}
+      <div class="voce-tags">
+        ${origin}${pri}${bonus}${missing}
+        <span class="tag">${escapeHtml(v.categoria)}</span>
+      </div>
+      ${razionale}
+    </div>
+    <div class="voce-right">
+      ${price}
+      <div class="voce-unit">per ${escapeHtml(v.unita_misura)}</div>
+    </div>
+    <div class="decision-row" data-voce-id="${v.id}">
+      <span class="dec-label">Prezzo €</span>
+      <input type="number" class="price-input" placeholder="${hasPrice ? v.prezzo : '...'}" data-field="prezzo" step="0.01" value="">
+      ${isClaude || !hasPrice ? `
+        <span class="dec-label" style="margin-left:10px">Decisione:</span>
+        <button class="dec-btn ${dec.decisione === 'ok' ? 'active-ok' : ''}" data-decision="ok">✓ Tieni</button>
+        <button class="dec-btn ${dec.decisione === 'review' ? 'active-review' : ''}" data-decision="review">↺ Da rivedere</button>
+        <button class="dec-btn ${dec.decisione === 'no' ? 'active-no' : ''}" data-decision="no">✗ Scarta</button>
+      ` : ''}
+      <input type="text" class="note-input" placeholder="Appunto..." data-field="appunto" value="${escapeAttr(dec.appunto || '')}">
+      ${lastMod}
+    </div>
+  </div>`;
+    }
+
+    function attachListeners() {
+      // Prezzo input - aggiorna la voce sul DB
+      document.querySelectorAll('.price-input').forEach(inp => {
+        inp.addEventListener('change', async (e) => {
+          const row = e.target.closest('.decision-row');
+          const voceId = parseInt(row.dataset.voceId);
+          const val = e.target.value === '' ? null : parseFloat(e.target.value);
+          if (val === null) return;
+
+          const { error } = await supabase
+            .from('voci')
+            .update({ prezzo: val, stato: 'validated' })
+            .eq('id', voceId);
+
+          if (error) toast('Errore: ' + error.message, true);
+          else { toast('Prezzo aggiornato'); e.target.value = ''; }
+        });
+      });
+
+      // Bottoni decisione
+      document.querySelectorAll('.dec-btn[data-decision]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const row = btn.closest('.decision-row');
+          const voceId = parseInt(row.dataset.voceId);
+          const newDec = btn.dataset.decision;
+          const current = allDecisioni[voceId] || {};
+          const applied = current.decisione === newDec ? null : newDec;
+
+          const { error } = await supabase
+            .from('decisioni_revisione')
+            .upsert({
+              voce_id: voceId,
+              utente_id: currentUser.id,
+              decisione: applied,
+              appunto: current.appunto || null,
+            }, { onConflict: 'voce_id,utente_id' });
+
+          if (error) { toast('Errore: ' + error.message, true); return; }
+
+          allDecisioni[voceId] = { ...current, decisione: applied };
+          row.querySelectorAll('.dec-btn[data-decision]').forEach(b => {
+            b.classList.remove('active-ok', 'active-no', 'active-review');
+            if (b.dataset.decision === applied) b.classList.add('active-' + applied);
+          });
+          toast(applied ? 'Salvato' : 'Rimosso');
+        });
+      });
+
+      // Appunti
+      document.querySelectorAll('.note-input').forEach(inp => {
+        inp.addEventListener('change', async (e) => {
+          const row = e.target.closest('.decision-row');
+          const voceId = parseInt(row.dataset.voceId);
+          const current = allDecisioni[voceId] || {};
+
+          const { error } = await supabase
+            .from('decisioni_revisione')
+            .upsert({
+              voce_id: voceId,
+              utente_id: currentUser.id,
+              decisione: current.decisione || null,
+              appunto: e.target.value || null,
+            }, { onConflict: 'voce_id,utente_id' });
+
+          if (error) { toast('Errore: ' + error.message, true); return; }
+          allDecisioni[voceId] = { ...current, appunto: e.target.value };
+          toast('Appunto salvato');
+        });
+      });
+    }
+
+    // ============================================================
+    // HISTORY
+    // ============================================================
+    async function openHistory() {
+      document.getElementById('drawerOverlay').classList.add('open');
+      document.getElementById('historyDrawer').classList.add('open');
+
+      const { data, error } = await supabase
+        .from('storico_modifiche')
+        .select('*, voci(voce)')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      const content = document.getElementById('historyContent');
+      if (error || !data || data.length === 0) {
+        content.innerHTML = '<p style="color:var(--muted);font-style:italic;padding:20px">Nessuna modifica registrata ancora.</p>';
+        return;
+      }
+
+      // Carica mapping utente_id -> nome
+      const { data: profili } = await supabase.from('utenti_profili').select('id, nome_display');
+      const nomeMap = {};
+      (profili || []).forEach(p => { nomeMap[p.id] = p.nome_display; });
+
+      content.innerHTML = data.map(h => {
+        const nome = nomeMap[h.utente_id] || 'Sistema';
+        const nomeClass = nome.toLowerCase();
+        const voceName = h.voci?.voce || '(voce rimossa)';
+        return `<div class="history-item">
+      <div class="history-when">${fmtDate(h.created_at)}</div>
+      <div><span class="history-who ${nomeClass}">${escapeHtml(nome)}</span> · ${escapeHtml(h.tipo_modifica || 'modifica')}</div>
+      <div class="history-change">Su <span class="history-voce">${escapeHtml(voceName)}</span>: ${escapeHtml(h.valore_vecchio || '—')} → ${escapeHtml(h.valore_nuovo || '—')}</div>
+    </div>`;
+      }).join('');
+    }
+
+    function closeHistory() {
+      document.getElementById('drawerOverlay').classList.remove('open');
+      document.getElementById('historyDrawer').classList.remove('open');
+    }
+
+    // ============================================================
+    // UTILS
+    // ============================================================
+    function fmtNum(n) {
+      return Number(n).toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+    function fmtRelative(iso) {
+      const d = new Date(iso);
+      const diff = Date.now() - d.getTime();
+      const min = Math.floor(diff / 60000);
+      if (min < 1) return 'ora';
+      if (min < 60) return min + ' min fa';
+      const h = Math.floor(min / 60);
+      if (h < 24) return h + ' ore fa';
+      const days = Math.floor(h / 24);
+      if (days < 7) return days + 'g fa';
+      return fmtDate(iso);
+    }
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function escapeAttr(s) {
+      return String(s || '').replace(/"/g, '&quot;');
+    }
+    function toast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' error' : '');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+  </script>
+</body>
+
+</html>

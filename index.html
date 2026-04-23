@@ -2,7 +2,8 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#faf8f3">
 <title>Prezzario MB</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,159 +16,299 @@
   --accent: #c14a22; --green: #3f7a4e; --orange: #d4a43a; --blue: #1e5f7a;
   --claude-bg: #fff6e0; --claude-border: #d4a43a;
   --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overscroll-behavior: none; }
 body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color: var(--ink); font-size: 14.5px; line-height: 1.5; -webkit-font-smoothing: antialiased; overflow: hidden; }
+button, input { font-family: inherit; }
 
-.login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--bg) 0%, var(--surface-2) 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-.login-box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 40px 44px; width: 100%; max-width: 420px; box-shadow: var(--shadow); }
+/* LOGIN */
+.login-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, var(--bg) 0%, var(--surface-2) 100%); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; padding-top: calc(20px + var(--safe-top)); padding-bottom: calc(20px + var(--safe-bottom)); }
+.login-box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 40px 32px; width: 100%; max-width: 420px; box-shadow: var(--shadow); }
 .login-title { font-family: 'Instrument Serif', Georgia, serif; font-size: 42px; line-height: 1; letter-spacing: -0.02em; margin-bottom: 8px; }
 .login-title em { font-style: italic; color: var(--accent); }
 .login-subtitle { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
 .login-field { margin-bottom: 16px; }
 .login-field label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'JetBrains Mono', monospace; color: var(--muted); margin-bottom: 6px; }
-.login-field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); font-family: inherit; font-size: 15px; outline: none; }
+.login-field input { width: 100%; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 16px; outline: none; }
 .login-field input:focus { border-color: var(--accent); }
-.login-btn { width: 100%; padding: 14px; background: var(--ink); color: white; border: none; border-radius: 6px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 8px; }
-.login-btn:hover { background: var(--accent); }
-.login-btn:disabled { opacity: 0.5; cursor: wait; }
+.login-btn { width: 100%; padding: 16px; background: var(--ink); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; margin-top: 8px; }
+.login-btn:active { background: var(--accent); }
+.login-btn:disabled { opacity: 0.5; }
 .login-error { margin-top: 12px; padding: 10px 14px; background: rgba(193,74,34,0.08); border-left: 3px solid var(--accent); color: var(--accent); font-size: 13px; border-radius: 4px; display: none; }
 .login-error.visible { display: block; }
 
 #app { display: none; }
-#app.ready { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: auto 1fr; grid-template-areas: "header header" "sidebar main"; height: 100vh; }
+#app.ready { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: auto 1fr; grid-template-areas: "header header" "sidebar main"; height: 100vh; height: 100dvh; }
 
-.header { grid-area: header; background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-.brand { display: flex; align-items: baseline; gap: 12px; }
-.brand-mark { font-family: 'Instrument Serif', Georgia, serif; font-size: 28px; font-weight: 400; letter-spacing: -0.02em; line-height: 1; }
+/* HEADER */
+.header { grid-area: header; background: var(--surface); border-bottom: 1px solid var(--line); padding: 12px 20px; padding-top: calc(12px + var(--safe-top)); display: flex; align-items: center; justify-content: space-between; gap: 12px; z-index: 10; }
+.header-left { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.menu-btn { display: none; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.menu-btn svg { width: 18px; height: 18px; stroke: var(--ink); stroke-width: 2; fill: none; }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.brand-mark { font-family: 'Instrument Serif', Georgia, serif; font-size: 26px; font-weight: 400; letter-spacing: -0.02em; line-height: 1; white-space: nowrap; }
 .brand-mark em { font-style: italic; color: var(--accent); }
-.brand-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); border-left: 1px solid var(--line-strong); padding-left: 12px; }
-.header-right { display: flex; align-items: center; gap: 14px; }
+.brand-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); border-left: 1px solid var(--line-strong); padding-left: 10px; white-space: nowrap; }
+.header-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .live-indicator { display: flex; align-items: center; gap: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
-.user-badge { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 8px; background: var(--surface-2); border-radius: 20px; font-size: 13px; }
-.user-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; }
+.user-badge { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; background: var(--surface-2); border-radius: 20px; font-size: 13px; }
+.user-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; flex-shrink: 0; }
 .user-role { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .user-role.admin { color: var(--accent); }
 .user-role.viewer { color: var(--blue); }
-.btn-logout { background: none; border: 1px solid var(--line); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px; color: var(--muted); }
-.btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+.btn-icon { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 15px; position: relative; }
+.btn-icon:active { background: var(--surface-2); }
+.btn-icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
+.cart-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; background: var(--accent); color: white; border-radius: 9px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+.btn-logout { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: none; cursor: pointer; font-size: 12px; color: var(--muted); }
+.btn-logout:active { border-color: var(--accent); color: var(--accent); }
 
-.sidebar { grid-area: sidebar; background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; padding: 20px 16px; }
+/* SIDEBAR */
+.sidebar { grid-area: sidebar; background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; padding: 20px 16px; -webkit-overflow-scrolling: touch; }
 .sidebar h3 { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 24px 0 10px; padding: 0 6px; }
 .sidebar h3:first-child { margin-top: 0; }
-.search-input { width: 100%; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); font-family: inherit; font-size: 13px; outline: none; }
+.search-wrap { position: relative; }
+.search-input { width: 100%; padding: 12px 14px 12px 38px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 14px; outline: none; }
 .search-input:focus { border-color: var(--accent); }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--muted); fill: none; stroke-width: 2; pointer-events: none; }
 .stats-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
-.stat-mini { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; text-align: center; }
+.stat-mini { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; text-align: center; }
 .stat-mini .num { font-family: 'Instrument Serif', serif; font-size: 22px; line-height: 1; }
 .stat-mini .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: 4px; }
 .stat-mini.green .num { color: var(--green); }
 .stat-mini.accent .num { color: var(--accent); }
 .stat-mini.orange .num { color: var(--orange); }
 .filter-group { display: flex; flex-direction: column; gap: 2px; }
-.filter-btn { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; background: none; border: none; text-align: left; font-family: inherit; font-size: 13px; color: var(--ink); cursor: pointer; border-radius: 4px; }
-.filter-btn:hover { background: var(--surface-2); }
+.filter-btn { display: flex; align-items: center; justify-content: space-between; padding: 10px 10px; background: none; border: none; text-align: left; font-size: 13.5px; color: var(--ink); cursor: pointer; border-radius: 6px; }
+.filter-btn:active { background: var(--surface-2); }
 .filter-btn.active { background: var(--ink); color: var(--bg); font-weight: 500; }
 .filter-btn .count { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; background: var(--line); padding: 2px 6px; border-radius: 10px; color: var(--muted); }
 .filter-btn.active .count { background: rgba(255,255,255,0.2); color: var(--bg); }
 
-.main { grid-area: main; overflow-y: auto; padding: 24px 32px 60px; }
-.main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1.5px solid var(--ink); }
-.main-title { font-family: 'Instrument Serif', serif; font-size: 32px; line-height: 1; font-weight: 400; letter-spacing: -0.02em; }
+.review-btn { width: 100%; padding: 12px; background: var(--claude-bg); border: 1px solid var(--claude-border); border-radius: 8px; color: var(--ink); font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.review-btn:active { background: var(--orange); color: white; }
+.review-btn em { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; }
+
+/* MAIN */
+.main { grid-area: main; overflow-y: auto; padding: 20px 28px 80px; -webkit-overflow-scrolling: touch; }
+.main-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1.5px solid var(--ink); gap: 12px; flex-wrap: wrap; }
+.main-title { font-family: 'Instrument Serif', serif; font-size: 30px; line-height: 1; font-weight: 400; letter-spacing: -0.02em; }
 .main-title em { font-style: italic; color: var(--accent); }
 .main-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
 
-.cat-section { margin-bottom: 36px; }
-.cat-heading { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
-.cat-name { font-family: 'Instrument Serif', serif; font-size: 22px; font-weight: 400; }
-.cat-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.voce-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: start; }
+.cat-section { margin-bottom: 32px; }
+.cat-heading { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); gap: 8px; }
+.cat-name { font-family: 'Instrument Serif', serif; font-size: 20px; font-weight: 400; }
+.cat-meta { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+
+.voce-card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: start; transition: box-shadow 0.15s; }
 .voce-card.claude { background: var(--claude-bg); border-left: 4px solid var(--claude-border); }
+.voce-card.in-cart { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(193,74,34,0.1); }
+.voce-head { cursor: pointer; min-width: 0; }
 .voce-name { font-family: 'Instrument Serif', serif; font-size: 17px; font-weight: 400; line-height: 1.3; margin-bottom: 4px; }
 .voce-card.claude .voce-name { font-style: italic; }
-.voce-descr { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+.voce-descr { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
 .voce-razionale { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; padding: 8px 12px; background: rgba(212,164,58,0.12); border-left: 2px solid var(--claude-border); border-radius: 3px; }
 .voce-razionale-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 4px; font-weight: 500; }
 .voce-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; font-style: italic; }
-.voce-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.voce-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .tag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); background: var(--bg); }
 .tag.missing { background: var(--accent); color: white; border-color: var(--accent); }
 .tag.bonus { background: var(--green); color: white; border-color: var(--green); }
 .tag.super { background: var(--surface-2); color: var(--ink); border-color: var(--line-strong); font-weight: 500; }
-.voce-right { text-align: right; min-width: 120px; }
-.voce-price { font-family: 'Instrument Serif', serif; font-size: 26px; font-weight: 400; line-height: 1; }
+.voce-right { text-align: right; min-width: 100px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.voce-price { font-family: 'Instrument Serif', serif; font-size: 24px; font-weight: 400; line-height: 1; }
 .voce-price.missing { font-size: 13px; color: var(--accent); font-style: italic; }
-.voce-unit { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 5px; }
+.voce-unit { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.add-to-cart { padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
+.add-to-cart:active { background: var(--ink); color: white; border-color: var(--ink); }
+.add-to-cart.added { background: var(--accent); color: white; border-color: var(--accent); }
+.add-to-cart svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+
+.voce-details { grid-column: 1 / -1; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); display: none; }
+.voce-details.open { display: block; }
+.details-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 16px; margin-bottom: 12px; }
+.detail-item { min-width: 0; }
+.detail-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 2px; }
+.detail-value { font-size: 13px; color: var(--ink); }
+.detail-value.multiline { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
 .decision-row { grid-column: 1 / -1; margin-top: 10px; padding-top: 12px; border-top: 1px dashed var(--line); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .dec-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-.price-input { width: 100px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: right; background: var(--surface); }
-.note-input { flex: 1; min-width: 160px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12.5px; background: var(--surface); }
-.dec-btn { padding: 6px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; color: var(--muted); }
-.dec-btn:hover { border-color: var(--ink); color: var(--ink); }
+.price-input { width: 100px; padding: 8px; border: 1px solid var(--line); border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 14px; text-align: right; background: var(--surface); }
+.note-input { flex: 1; min-width: 140px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; background: var(--surface); }
+.dec-btn { padding: 8px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; color: var(--muted); }
+.dec-btn:active { transform: scale(0.96); }
 .dec-btn.ok { border-color: var(--green); color: var(--green); }
-.dec-btn.ok:hover { background: var(--green); color: white; }
+.dec-btn.ok:active { background: var(--green); color: white; }
 .dec-btn.no { border-color: var(--accent); color: var(--accent); }
-.dec-btn.no:hover { background: var(--accent); color: white; }
+.dec-btn.no:active { background: var(--accent); color: white; }
 .dec-btn.review { border-color: var(--orange); color: var(--orange); }
-.dec-btn.review:hover { background: var(--orange); color: white; }
+.dec-btn.review:active { background: var(--orange); color: white; }
 
 body.viewer-mode .decision-row { display: none; }
-body.viewer-mode .voce-card { padding-bottom: 16px; }
+body.viewer-mode .add-to-cart { display: none; }
 
 .loading-main { display: flex; align-items: center; justify-content: center; padding: 80px; color: var(--muted); font-style: italic; }
 
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 10px 20px; font-size: 13px; border-radius: 8px; opacity: 0; transition: all 0.3s; pointer-events: none; font-family: 'JetBrains Mono', monospace; z-index: 200; }
+/* TOAST */
+.toast { position: fixed; bottom: calc(24px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 12px 20px; font-size: 13px; border-radius: 10px; opacity: 0; transition: all 0.3s; pointer-events: none; font-family: 'JetBrains Mono', monospace; z-index: 200; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--accent); }
 .toast.success { background: var(--green); }
 
-@media (max-width: 900px) { #app.ready { grid-template-columns: 1fr; grid-template-areas: "header" "main"; } .sidebar { display: none; } .main { padding: 16px 20px 40px; } .voce-card { grid-template-columns: 1fr; } .voce-right { text-align: left; } }
+/* DRAWER BACKDROP */
+.backdrop { position: fixed; inset: 0; background: rgba(31,29,26,0.4); opacity: 0; visibility: hidden; transition: all 0.25s; z-index: 100; }
+.backdrop.show { opacity: 1; visibility: visible; }
+
+/* CART DRAWER */
+.cart-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(420px, 100%); background: var(--surface); z-index: 150; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; box-shadow: var(--shadow-lg); padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+.cart-drawer.open { transform: translateX(0); }
+.cart-header { padding: 20px 20px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.cart-title { font-family: 'Instrument Serif', serif; font-size: 28px; letter-spacing: -0.02em; }
+.cart-title em { font-style: italic; color: var(--accent); }
+.cart-close { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 20px; flex-shrink: 0; }
+.cart-name-input { width: calc(100% - 40px); margin: 0 20px 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 14px; outline: none; }
+.cart-name-input:focus { border-color: var(--accent); }
+.cart-list { flex: 1; overflow-y: auto; padding: 0 20px; }
+.cart-item { padding: 12px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.cart-item-name { font-family: 'Instrument Serif', serif; font-size: 15px; line-height: 1.3; margin-bottom: 4px; }
+.cart-item-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cart-qty { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); border-radius: 6px; padding: 2px 4px; }
+.cart-qty button { width: 22px; height: 22px; border: none; background: none; font-size: 14px; color: var(--ink); cursor: pointer; border-radius: 3px; }
+.cart-qty button:active { background: var(--surface-2); }
+.cart-qty input { width: 40px; border: none; background: none; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 2px; outline: none; }
+.cart-item-right { text-align: right; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.cart-item-subtotal { font-family: 'Instrument Serif', serif; font-size: 17px; }
+.cart-item-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 11px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px; }
+.cart-item-remove:active { color: var(--accent); }
+.cart-empty { padding: 60px 20px; text-align: center; color: var(--muted); font-style: italic; font-size: 14px; }
+.cart-footer { padding: 16px 20px; border-top: 1.5px solid var(--ink); background: var(--surface-2); }
+.cart-totals { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: baseline; margin-bottom: 14px; }
+.cart-totals .lbl { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.cart-totals .val { font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: right; }
+.cart-totals .grand { font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1; color: var(--accent); }
+.cart-totals .grand-lbl { font-family: 'Instrument Serif', serif; font-size: 17px; color: var(--ink); }
+.cart-actions { display: flex; gap: 8px; }
+.cart-btn { flex: 1; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); cursor: pointer; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); }
+.cart-btn.primary { background: var(--ink); color: white; border-color: var(--ink); }
+.cart-btn.primary:active { background: var(--accent); border-color: var(--accent); }
+.cart-btn.danger:active { border-color: var(--accent); color: var(--accent); }
+
+/* REVIEW MODE */
+.review-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 170; display: none; flex-direction: column; padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+.review-overlay.open { display: flex; }
+.review-header { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.review-title { font-family: 'Instrument Serif', serif; font-size: 22px; letter-spacing: -0.02em; }
+.review-title em { font-style: italic; color: var(--accent); }
+.review-progress { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.review-body { flex: 1; overflow-y: auto; padding: 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+.review-card { background: var(--claude-bg); border: 1px solid var(--claude-border); border-radius: 14px; padding: 22px 20px; max-width: 560px; width: 100%; margin: 0 auto; }
+.review-cat-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 10px; }
+.review-voce-name { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 26px; line-height: 1.25; font-weight: 400; margin-bottom: 10px; }
+.review-descr { font-size: 14px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; }
+.review-prop-price { font-family: 'Instrument Serif', serif; font-size: 46px; line-height: 1; color: var(--ink); margin: 14px 0 4px; }
+.review-prop-unit { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+.review-razionale { font-size: 13px; color: var(--muted); line-height: 1.55; padding: 12px 14px; background: rgba(255,255,255,0.5); border-left: 2px solid var(--claude-border); border-radius: 4px; margin-bottom: 14px; }
+.review-razionale-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 4px; font-weight: 500; }
+.review-adjust { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.review-adjust .price-input { flex: 1; min-width: 120px; padding: 10px; font-size: 15px; }
+.review-adjust .note-input { flex: 2; min-width: 160px; padding: 10px 12px; font-size: 13px; }
+.review-footer { padding: 16px 20px; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; background: var(--surface); }
+.review-action { padding: 14px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.review-action:active { transform: scale(0.96); }
+.review-action.ok { border-color: var(--green); color: var(--green); }
+.review-action.ok:active { background: var(--green); color: white; }
+.review-action.no { border-color: var(--accent); color: var(--accent); }
+.review-action.no:active { background: var(--accent); color: white; }
+.review-action.skip { border-color: var(--muted); color: var(--muted); }
+.review-action.skip:active { background: var(--muted); color: white; }
+.review-done { text-align: center; padding: 60px 20px; color: var(--muted); font-family: 'Instrument Serif', serif; font-style: italic; font-size: 22px; }
+
+/* =============================== MOBILE =============================== */
+@media (max-width: 900px) {
+  .menu-btn { display: flex; }
+  .brand-tag, .live-indicator { display: none; }
+  .brand-mark { font-size: 22px; }
+  .user-badge span:first-of-type { display: none; }
+  .btn-logout { display: none; }
+  
+  #app.ready { grid-template-columns: 1fr; grid-template-areas: "header" "main"; }
+  
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: min(300px, 85%); z-index: 150; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: calc(20px + var(--safe-top)) 16px 20px; box-shadow: var(--shadow-lg); }
+  .sidebar.open { transform: translateX(0); }
+  
+  .main { padding: 16px 16px 80px; }
+  .main-title { font-size: 26px; }
+  .cat-name { font-size: 18px; }
+  
+  .voce-card { grid-template-columns: 1fr; gap: 10px; padding: 14px; }
+  .voce-right { flex-direction: row; align-items: center; justify-content: space-between; text-align: left; min-width: 0; gap: 10px; flex-wrap: wrap; }
+  .voce-price { font-size: 22px; }
+  
+  .decision-row { gap: 6px; }
+  .decision-row .price-input { flex: 1; min-width: 90px; }
+  .decision-row .note-input { flex-basis: 100%; order: 3; min-width: 0; }
+  .dec-btn { flex: 1; min-width: 72px; }
+  
+  .review-footer { grid-template-columns: 1fr 1fr; }
+  .review-action.skip { grid-column: 1 / -1; }
+  .review-voce-name { font-size: 22px; }
+  .review-prop-price { font-size: 38px; }
+}
+
+/* iPhone small */
+@media (max-width: 380px) {
+  .user-badge { padding: 4px; }
+  .user-badge span { display: none !important; }
+  .user-role { display: none; }
+  .btn-icon { width: 36px; height: 36px; }
+}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
     <div class="login-title">Prezzario <em>MB</em></div>
     <div class="login-subtitle">Accedi per continuare</div>
     <form id="loginForm">
-      <div class="login-field">
-        <label>Email</label>
-        <input type="email" id="loginEmail" required autocomplete="email" placeholder="tu@email.com">
-      </div>
-      <div class="login-field">
-        <label>Password</label>
-        <input type="password" id="loginPassword" required autocomplete="current-password">
-      </div>
+      <div class="login-field"><label>Email</label><input type="email" id="loginEmail" required autocomplete="email" placeholder="tu@email.com"></div>
+      <div class="login-field"><label>Password</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
       <button type="submit" class="login-btn" id="loginBtn">Entra</button>
       <div class="login-error" id="loginError"></div>
     </form>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
   <header class="header">
-    <div class="brand">
-      <span class="brand-mark">Prezzario <em>MB</em></span>
-      <span class="brand-tag">Database Online</span>
+    <div class="header-left">
+      <button class="menu-btn" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="brand"><span class="brand-mark">Prezzario <em>MB</em></span><span class="brand-tag">Database Online</span></div>
     </div>
     <div class="header-right">
       <div class="live-indicator"><span class="live-dot"></span><span>Live</span></div>
-      <div class="user-badge">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <span id="userName">...</span>
-        <span class="user-role" id="userRole"></span>
-      </div>
+      <button class="btn-icon" id="cartBtn" aria-label="Preventivo"><svg viewBox="0 0 24 24"><path d="M3 3h2l2 13h11l2-9H6"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg><span class="cart-count" id="cartCount" style="display:none">0</span></button>
+      <div class="user-badge"><div class="user-avatar" id="userAvatar">?</div><span id="userName">...</span><span class="user-role" id="userRole"></span></div>
       <button class="btn-logout" onclick="doLogout()">Esci</button>
     </div>
   </header>
 
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <h3>Ricerca</h3>
-    <input type="text" class="search-input" id="searchInput" placeholder="Cerca voce...">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" class="search-input" id="searchInput" placeholder="Cerca voce, categoria..." inputmode="search">
+    </div>
     <h3>Totali</h3>
     <div class="stats-mini">
       <div class="stat-mini"><div class="num" id="statTotal">-</div><div class="lbl">totali</div></div>
@@ -175,6 +316,7 @@ body.viewer-mode .voce-card { padding-bottom: 16px; }
       <div class="stat-mini accent"><div class="num" id="statMissing">-</div><div class="lbl">da prezzare</div></div>
       <div class="stat-mini orange"><div class="num" id="statClaude">-</div><div class="lbl">proposte</div></div>
     </div>
+    <button class="review-btn" id="openReviewBtn">✨ Modalità <em>review rapida</em></button>
     <h3>Vista rapida</h3>
     <div class="filter-group" id="quickFilters">
       <button class="filter-btn active" data-quick="all">Tutte <span class="count" id="cntAll">0</span></button>
@@ -182,7 +324,7 @@ body.viewer-mode .voce-card { padding-bottom: 16px; }
       <button class="filter-btn" data-quick="claude">Proposte Claude <span class="count" id="cntClaude">0</span></button>
     </div>
     <h3>Categoria</h3>
-    <div class="filter-group" id="catFilters" style="max-height: 300px; overflow-y: auto;"></div>
+    <div class="filter-group" id="catFilters" style="max-height: 40vh; overflow-y: auto;"></div>
   </aside>
 
   <main class="main">
@@ -194,6 +336,47 @@ body.viewer-mode .voce-card { padding-bottom: 16px; }
   </main>
 </div>
 
+<div class="backdrop" id="backdrop"></div>
+
+<!-- CART -->
+<aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+  <div class="cart-header">
+    <div class="cart-title">Il tuo <em>preventivo</em></div>
+    <button class="cart-close" id="cartClose" aria-label="Chiudi">✕</button>
+  </div>
+  <input type="text" class="cart-name-input" id="cartNameInput" placeholder="Nome preventivo (es. Bagno Rossi)" value="">
+  <div class="cart-list" id="cartList"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-totals">
+      <div class="lbl">Voci</div><div class="val" id="cartItems">0</div>
+      <div class="lbl">Subtotale</div><div class="val" id="cartSubtotal">€ 0</div>
+      <div class="lbl">IVA stimata</div><div class="val" id="cartIva">€ 0</div>
+      <div class="grand-lbl">Totale</div><div class="grand" id="cartGrand">€ 0</div>
+    </div>
+    <div class="cart-actions">
+      <button class="cart-btn danger" id="cartClear">Svuota</button>
+      <button class="cart-btn primary" id="cartExport">Esporta</button>
+    </div>
+  </div>
+</aside>
+
+<!-- REVIEW -->
+<div class="review-overlay" id="reviewOverlay" aria-hidden="true">
+  <div class="review-header">
+    <div class="review-title">Review <em>rapida</em></div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="review-progress" id="reviewProgress">0 / 0</div>
+      <button class="cart-close" id="reviewClose" aria-label="Chiudi">✕</button>
+    </div>
+  </div>
+  <div class="review-body" id="reviewBody"></div>
+  <div class="review-footer" id="reviewFooter">
+    <button class="review-action no" data-action="no">Scarta</button>
+    <button class="review-action ok" data-action="ok">Approva</button>
+    <button class="review-action skip" data-action="skip">Salta</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -203,7 +386,22 @@ const sb = window.supabase.createClient(SB_URL, SB_KEY);
 
 let currentUser = null, currentProfile = null;
 let allVoci = [], filters = { search: '', quick: 'all', cat: null };
+let cart = []; // [{id, qty}]
+let reviewQueue = [], reviewIdx = 0;
 
+// ========== UTILS ==========
+function normalize(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function eur(n) { return '€ ' + Number(n || 0).toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+function toast(msg, err, variant) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (err ? ' error' : (variant === 'success' ? ' success' : ''));
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ========== AUTH ==========
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
@@ -217,7 +415,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     err.textContent = 'Errore: ' + error.message;
     err.classList.add('visible');
     btn.disabled = false; btn.textContent = 'Entra';
-    console.error('Login error:', error);
     return;
   }
   currentUser = data.user;
@@ -225,37 +422,57 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 });
 
 async function afterLogin() {
-  const { data: profile } = await sb.from('utenti_profili').select('*').eq('id', currentUser.id).single();
-  currentProfile = profile || { nome_display: currentUser.email.split('@')[0], ruolo: 'editor' };
+  const { data: profile } = await sb.rpc('mio_profilo');
+  currentProfile = profile || { nome_display: currentUser.email.split('@')[0], ruolo: 'editor', can_edit: true, can_admin: false };
   document.getElementById('userName').textContent = currentProfile.nome_display;
   document.getElementById('userAvatar').textContent = currentProfile.nome_display[0].toUpperCase();
   const roleEl = document.getElementById('userRole');
   roleEl.textContent = currentProfile.ruolo || 'editor';
   roleEl.className = 'user-role ' + (currentProfile.ruolo || 'editor');
-  if (currentProfile.ruolo === 'viewer') document.body.classList.add('viewer-mode');
+  if (!currentProfile.can_edit) document.body.classList.add('viewer-mode');
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('app').classList.add('ready');
-  await loadVoci();
+  loadCartFromStorage();
+  await Promise.all([loadVoci(), loadStats()]);
   setupRealtime();
   render();
+  updateCartBadge();
 }
 
-async function doLogout() {
-  await sb.auth.signOut();
-  window.location.reload();
-}
+async function doLogout() { await sb.auth.signOut(); window.location.reload(); }
 
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session) { currentUser = session.user; afterLogin(); }
 })();
 
+// ========== DATA ==========
 async function loadVoci() {
   const { data, error } = await sb.from('voci').select('*').order('categoria').order('id');
   if (error) { toast('Errore: ' + error.message, true); return; }
   allVoci = data;
-  updateStats();
   buildFilters();
+}
+
+async function loadStats() {
+  const { data, error } = await sb.from('v_statistiche').select('*').single();
+  if (error) { updateStatsClient(); return; }
+  document.getElementById('statTotal').textContent = data.totale;
+  document.getElementById('statOk').textContent = data.con_prezzo;
+  document.getElementById('statMissing').textContent = data.da_prezzare;
+  document.getElementById('statClaude').textContent = data.proposte_claude;
+  document.getElementById('cntAll').textContent = data.totale;
+  document.getElementById('cntMissing').textContent = data.da_prezzare;
+  document.getElementById('cntClaude').textContent = data.proposte_claude;
+}
+
+function updateStatsClient() {
+  const total = allVoci.length;
+  const ok = allVoci.filter(v => v.prezzo != null).length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statOk').textContent = ok;
+  document.getElementById('statMissing').textContent = total - ok;
+  document.getElementById('statClaude').textContent = allVoci.filter(v => v.fonte && v.fonte.startsWith('proposta_')).length;
 }
 
 function setupRealtime() {
@@ -263,31 +480,13 @@ function setupRealtime() {
     if (payload.eventType === 'UPDATE') {
       const idx = allVoci.findIndex(v => v.id === payload.new.id);
       if (idx >= 0) allVoci[idx] = payload.new;
-    } else if (payload.eventType === 'INSERT') {
-      allVoci.push(payload.new);
-    } else if (payload.eventType === 'DELETE') {
-      allVoci = allVoci.filter(v => v.id !== payload.old.id);
-    }
-    updateStats();
-    buildFilters();
-    render();
+    } else if (payload.eventType === 'INSERT') { allVoci.push(payload.new); }
+    else if (payload.eventType === 'DELETE') { allVoci = allVoci.filter(v => v.id !== payload.old.id); }
+    loadStats(); buildFilters(); render(); updateCartView();
   }).subscribe();
 }
 
-function updateStats() {
-  const total = allVoci.length;
-  const ok = allVoci.filter(v => v.prezzo != null).length;
-  const missing = total - ok;
-  const claude = allVoci.filter(v => v.fonte && v.fonte.startsWith('proposta_')).length;
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statOk').textContent = ok;
-  document.getElementById('statMissing').textContent = missing;
-  document.getElementById('statClaude').textContent = claude;
-  document.getElementById('cntAll').textContent = total;
-  document.getElementById('cntMissing').textContent = missing;
-  document.getElementById('cntClaude').textContent = claude;
-}
-
+// ========== FILTERS ==========
 function buildFilters() {
   const cats = {};
   allVoci.forEach(v => { cats[v.categoria] = (cats[v.categoria] || 0) + 1; });
@@ -299,16 +498,17 @@ function buildFilters() {
     btn.addEventListener('click', () => {
       filters.cat = filters.cat === btn.dataset.cat ? null : btn.dataset.cat;
       updateBtns(); render();
+      closeSidebarMobile();
     });
   });
   document.querySelectorAll('[data-quick]').forEach(btn => {
     btn.addEventListener('click', () => {
-      filters.quick = btn.dataset.quick;
-      updateBtns(); render();
+      filters.quick = btn.dataset.quick; updateBtns(); render();
+      closeSidebarMobile();
     });
   });
   document.getElementById('searchInput').addEventListener('input', (e) => {
-    filters.search = e.target.value.toLowerCase(); render();
+    filters.search = normalize(e.target.value); render();
   });
   updateBtns();
 }
@@ -321,7 +521,7 @@ function updateBtns() {
 function getFiltered() {
   return allVoci.filter(v => {
     if (filters.search) {
-      const hay = (v.voce + ' ' + (v.descrizione_breve || '') + ' ' + v.categoria).toLowerCase();
+      const hay = normalize(v.voce + ' ' + (v.descrizione_breve || '') + ' ' + v.categoria + ' ' + (v.super_categoria || ''));
       if (!hay.includes(filters.search)) return false;
     }
     if (filters.quick === 'missing' && v.prezzo != null) return false;
@@ -331,6 +531,7 @@ function getFiltered() {
   });
 }
 
+// ========== RENDER ==========
 function render() {
   const voci = getFiltered();
   document.getElementById('mainCount').textContent = voci.length + ' voci';
@@ -353,28 +554,44 @@ function render() {
 function renderVoce(v) {
   const isClaude = v.fonte && v.fonte.startsWith('proposta_');
   const hasPrice = v.prezzo != null;
-  const price = hasPrice ? '<div class="voce-price">€ ' + Number(v.prezzo).toLocaleString('it-IT') + '</div>' : '<div class="voce-price missing">da prezzare</div>';
+  const inCart = cart.some(c => c.id === v.id);
+  const price = hasPrice ? '<div class="voce-price">' + eur(v.prezzo) + '</div>' : '<div class="voce-price missing">da prezzare</div>';
   const bonus = (v.bonus_applicabili || []).map(b => '<span class="tag bonus">' + b.replace(/_/g, ' ') + '</span>').join('');
   const missing = !hasPrice ? '<span class="tag missing">da prezzare</span>' : '';
   const superCat = v.super_categoria ? '<span class="tag super">' + esc(v.super_categoria) + '</span>' : '';
   const razionale = (isClaude && v.razionale_proposta) ? '<div class="voce-razionale"><div class="voce-razionale-label">Razionale proposta</div>' + esc(v.razionale_proposta) + '</div>' : '';
   const noteCantiere = v.note_cantiere ? '<div class="voce-note">' + esc(v.note_cantiere) + '</div>' : '';
-  return '<div class="voce-card ' + (isClaude ? 'claude' : '') + '" data-id="' + v.id + '">' +
-    '<div>' +
+  const cartBtn = hasPrice ? '<button class="add-to-cart ' + (inCart ? 'added' : '') + '" data-cart-id="' + v.id + '"><svg viewBox="0 0 24 24">' + (inCart ? '<path d="M5 12l5 5L20 7"/>' : '<path d="M12 5v14M5 12h14"/>') + '</svg>' + (inCart ? 'Nel preventivo' : 'Aggiungi') + '</button>' : '';
+  
+  // Dettagli espandibili
+  let detailsHtml = '<div class="voce-details" data-details-id="' + v.id + '"><div class="details-grid">';
+  if (v.quota_manodopera_pct != null) detailsHtml += '<div class="detail-item"><div class="detail-label">Manodopera</div><div class="detail-value">' + v.quota_manodopera_pct + '%</div></div>';
+  if (v.quota_materiale_pct != null) detailsHtml += '<div class="detail-item"><div class="detail-label">Materiale</div><div class="detail-value">' + v.quota_materiale_pct + '%</div></div>';
+  if (v.tempo_stimato_giorni_uomo != null) detailsHtml += '<div class="detail-item"><div class="detail-label">Tempo stimato</div><div class="detail-value">' + v.tempo_stimato_giorni_uomo + ' gg/uomo</div></div>';
+  if (v.iva_default != null) detailsHtml += '<div class="detail-item"><div class="detail-label">IVA</div><div class="detail-value">' + v.iva_default + '%</div></div>';
+  if (v.fonte) detailsHtml += '<div class="detail-item"><div class="detail-label">Fonte</div><div class="detail-value">' + esc(v.fonte) + '</div></div>';
+  if (v.prezzo_riferimento_mb != null) detailsHtml += '<div class="detail-item"><div class="detail-label">Rif. MB</div><div class="detail-value">' + eur(v.prezzo_riferimento_mb) + '</div></div>';
+  detailsHtml += '</div>';
+  if (v.materiali_inclusi) detailsHtml += '<div class="detail-item" style="margin-bottom:8px"><div class="detail-label">Materiali inclusi</div><div class="detail-value multiline">' + esc(v.materiali_inclusi) + '</div></div>';
+  if (v.materiali_esclusi) detailsHtml += '<div class="detail-item"><div class="detail-label">Materiali esclusi</div><div class="detail-value multiline">' + esc(v.materiali_esclusi) + '</div></div>';
+  detailsHtml += '</div>';
+
+  return '<div class="voce-card ' + (isClaude ? 'claude ' : '') + (inCart ? 'in-cart' : '') + '" data-id="' + v.id + '">' +
+    '<div class="voce-head" data-toggle-id="' + v.id + '">' +
       '<div class="voce-name">' + esc(v.voce) + '</div>' +
       (v.descrizione_breve && v.descrizione_breve !== v.voce ? '<div class="voce-descr">' + esc(v.descrizione_breve) + '</div>' : '') +
-      razionale +
-      noteCantiere +
+      razionale + noteCantiere +
       '<div class="voce-tags">' + superCat + bonus + missing + '<span class="tag">' + esc(v.categoria) + '</span></div>' +
     '</div>' +
-    '<div class="voce-right">' + price + '<div class="voce-unit">per ' + esc(v.unita_misura) + '</div></div>' +
+    '<div class="voce-right">' + price + '<div class="voce-unit">per ' + esc(v.unita_misura) + '</div>' + cartBtn + '</div>' +
+    detailsHtml +
     '<div class="decision-row" data-id="' + v.id + '">' +
-      '<span class="dec-label">Prezzo €</span>' +
-      '<input type="number" class="price-input" step="0.01" placeholder="' + (hasPrice ? v.prezzo : '...') + '">' +
+      '<span class="dec-label">€</span>' +
+      '<input type="number" class="price-input" step="0.01" placeholder="' + (hasPrice ? v.prezzo : '...') + '" inputmode="decimal">' +
       '<input type="text" class="note-input" placeholder="Appunto...">' +
       '<button class="dec-btn ok" data-dec="ok">OK</button>' +
-      '<button class="dec-btn review" data-dec="review">Review</button>' +
-      '<button class="dec-btn no" data-dec="no">Scarta</button>' +
+      '<button class="dec-btn review" data-dec="review">?</button>' +
+      '<button class="dec-btn no" data-dec="no">No</button>' +
     '</div>' +
   '</div>';
 }
@@ -384,67 +601,287 @@ async function saveDecision(voceId, decisione, row) {
   const noteInput = row.querySelector('.note-input');
   const prezzo = priceInput.value === '' ? null : parseFloat(priceInput.value);
   const appunto = noteInput.value.trim() || null;
-
-  // Log decisione in decisioni_revisione (sempre)
-  const decData = {
-    voce_id: voceId,
-    utente_id: currentUser.id,
-    decisione: decisione,
-    prezzo_nuovo: prezzo,
-    appunto: appunto
-  };
-  const { error: decErr } = await sb.from('decisioni_revisione').insert(decData);
-  if (decErr) { toast('Errore log: ' + decErr.message, true); return; }
-
-  // Aggiorna voci se è OK e c'è un prezzo nuovo
-  if (decisione === 'ok' && prezzo !== null) {
-    const { error: upErr } = await sb.from('voci').update({ prezzo: prezzo, stato: 'validated' }).eq('id', voceId);
-    if (upErr) { toast('Errore prezzo: ' + upErr.message, true); return; }
-  } else if (decisione === 'review') {
-    await sb.from('voci').update({ stato: 'review' }).eq('id', voceId);
-  } else if (decisione === 'no') {
-    await sb.from('voci').update({ stato: 'rejected' }).eq('id', voceId);
-  }
-
+  const { data, error } = await sb.rpc('salva_decisione', {
+    p_voce_id: voceId, p_decisione: decisione, p_prezzo_nuovo: prezzo, p_appunto: appunto
+  });
+  if (error) { toast('Errore: ' + error.message, true); return; }
   toast('Salvato: ' + decisione.toUpperCase(), false, 'success');
-  priceInput.value = '';
-  noteInput.value = '';
+  priceInput.value = ''; noteInput.value = '';
 }
 
 function attachListeners() {
-  // Se viewer, nessun listener (gli input sono nascosti via CSS ma per sicurezza)
-  if (currentProfile && currentProfile.ruolo === 'viewer') return;
-
-  document.querySelectorAll('.dec-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const row = e.target.closest('.decision-row');
-      const id = parseInt(row.dataset.id);
-      const dec = btn.dataset.dec;
-      await saveDecision(id, dec, row);
+  // Expand dettagli
+  document.querySelectorAll('[data-toggle-id]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('button, input')) return;
+      const id = el.dataset.toggleId;
+      document.querySelector('[data-details-id="' + id + '"]').classList.toggle('open');
     });
   });
 
-  // Enter nel prezzo = OK rapido
+  // Cart buttons
+  document.querySelectorAll('[data-cart-id]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = parseInt(btn.dataset.cartId);
+      toggleCart(id);
+    });
+  });
+
+  if (currentProfile && !currentProfile.can_edit) return;
+  
+  document.querySelectorAll('.dec-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const row = e.target.closest('.decision-row');
+      await saveDecision(parseInt(row.dataset.id), btn.dataset.dec, row);
+    });
+  });
   document.querySelectorAll('.price-input').forEach(inp => {
     inp.addEventListener('keydown', async (e) => {
       if (e.key === 'Enter') {
         const row = e.target.closest('.decision-row');
-        const id = parseInt(row.dataset.id);
-        await saveDecision(id, 'ok', row);
+        await saveDecision(parseInt(row.dataset.id), 'ok', row);
       }
     });
   });
 }
 
-function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-function toast(msg, err, variant) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (err ? ' error' : (variant === 'success' ? ' success' : ''));
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+// ========== CART ==========
+function loadCartFromStorage() {
+  try {
+    const raw = sessionStorage.getItem('mb_cart');
+    if (raw) cart = JSON.parse(raw);
+    const name = sessionStorage.getItem('mb_cart_name');
+    if (name) document.getElementById('cartNameInput').value = name;
+  } catch (e) { cart = []; }
 }
+function saveCartToStorage() {
+  try {
+    sessionStorage.setItem('mb_cart', JSON.stringify(cart));
+    sessionStorage.setItem('mb_cart_name', document.getElementById('cartNameInput').value);
+  } catch (e) {}
+}
+function toggleCart(id) {
+  const voce = allVoci.find(v => v.id === id);
+  if (!voce || voce.prezzo == null) return;
+  const idx = cart.findIndex(c => c.id === id);
+  if (idx >= 0) { cart.splice(idx, 1); toast('Rimosso dal preventivo'); }
+  else { cart.push({ id, qty: 1 }); toast('Aggiunto al preventivo', false, 'success'); }
+  saveCartToStorage();
+  updateCartBadge();
+  // Aggiorno solo la card toccata
+  const btn = document.querySelector('[data-cart-id="' + id + '"]');
+  const card = document.querySelector('.voce-card[data-id="' + id + '"]');
+  if (btn && card) {
+    const inCart = cart.some(c => c.id === id);
+    btn.classList.toggle('added', inCart);
+    card.classList.toggle('in-cart', inCart);
+    btn.innerHTML = '<svg viewBox="0 0 24 24">' + (inCart ? '<path d="M5 12l5 5L20 7"/>' : '<path d="M12 5v14M5 12h14"/>') + '</svg>' + (inCart ? 'Nel preventivo' : 'Aggiungi');
+  }
+  updateCartView();
+}
+function updateCartBadge() {
+  const n = cart.length;
+  const badge = document.getElementById('cartCount');
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'flex' : 'none';
+}
+function updateCartView() {
+  const list = document.getElementById('cartList');
+  const footer = document.getElementById('cartFooter');
+  if (cart.length === 0) {
+    list.innerHTML = '<div class="cart-empty">Nessuna voce. Tocca "Aggiungi" su una voce del listino.</div>';
+    footer.style.display = 'none';
+    return;
+  }
+  footer.style.display = 'block';
+  list.innerHTML = cart.map(c => {
+    const v = allVoci.find(x => x.id === c.id);
+    if (!v) return '';
+    const subtotal = (v.prezzo || 0) * c.qty;
+    return '<div class="cart-item">' +
+      '<div><div class="cart-item-name">' + esc(v.voce) + '</div>' +
+      '<div class="cart-item-meta">' +
+        '<div class="cart-qty"><button data-qty-minus="' + v.id + '">−</button><input type="number" min="0" step="0.5" value="' + c.qty + '" data-qty-val="' + v.id + '" inputmode="decimal"><button data-qty-plus="' + v.id + '">+</button></div>' +
+        '<span>' + esc(v.unita_misura) + ' · ' + eur(v.prezzo) + '/u</span>' +
+      '</div></div>' +
+      '<div class="cart-item-right"><div class="cart-item-subtotal">' + eur(subtotal) + '</div>' +
+      '<button class="cart-item-remove" data-remove="' + v.id + '">Rimuovi</button></div>' +
+    '</div>';
+  }).join('');
+
+  // Totali (IVA media pesata sulle voci con iva_default)
+  let subtotal = 0, ivaAmt = 0;
+  cart.forEach(c => {
+    const v = allVoci.find(x => x.id === c.id);
+    if (!v) return;
+    const s = (v.prezzo || 0) * c.qty;
+    subtotal += s;
+    const iva = v.iva_default || 10;
+    ivaAmt += s * (iva / 100);
+  });
+  document.getElementById('cartItems').textContent = cart.length;
+  document.getElementById('cartSubtotal').textContent = eur(subtotal);
+  document.getElementById('cartIva').textContent = eur(ivaAmt);
+  document.getElementById('cartGrand').textContent = eur(subtotal + ivaAmt);
+
+  // Listeners qty
+  list.querySelectorAll('[data-qty-plus]').forEach(b => b.addEventListener('click', () => { setQty(parseInt(b.dataset.qtyPlus), null, 1); }));
+  list.querySelectorAll('[data-qty-minus]').forEach(b => b.addEventListener('click', () => { setQty(parseInt(b.dataset.qtyMinus), null, -1); }));
+  list.querySelectorAll('[data-qty-val]').forEach(inp => inp.addEventListener('change', (e) => { setQty(parseInt(inp.dataset.qtyVal), parseFloat(e.target.value) || 0); }));
+  list.querySelectorAll('[data-remove]').forEach(b => b.addEventListener('click', () => toggleCart(parseInt(b.dataset.remove))));
+}
+function setQty(id, qty, delta) {
+  const c = cart.find(x => x.id === id);
+  if (!c) return;
+  if (qty != null) c.qty = Math.max(0, qty);
+  if (delta) c.qty = Math.max(0, c.qty + delta);
+  if (c.qty === 0) { cart = cart.filter(x => x.id !== id); updateCartBadge(); }
+  saveCartToStorage();
+  updateCartView();
+}
+function exportCart() {
+  if (cart.length === 0) return;
+  const nome = document.getElementById('cartNameInput').value.trim() || 'Preventivo';
+  const data = new Date().toLocaleDateString('it-IT');
+  let txt = nome + '\n' + data + '\n' + '='.repeat(50) + '\n\n';
+  let subtotal = 0, ivaAmt = 0;
+  cart.forEach(c => {
+    const v = allVoci.find(x => x.id === c.id);
+    if (!v) return;
+    const s = (v.prezzo || 0) * c.qty;
+    subtotal += s;
+    ivaAmt += s * ((v.iva_default || 10) / 100);
+    txt += v.voce + '\n';
+    txt += '  ' + c.qty + ' ' + v.unita_misura + ' × ' + eur(v.prezzo) + ' = ' + eur(s) + '\n\n';
+  });
+  txt += '='.repeat(50) + '\n';
+  txt += 'Subtotale: ' + eur(subtotal) + '\n';
+  txt += 'IVA:       ' + eur(ivaAmt) + '\n';
+  txt += 'TOTALE:    ' + eur(subtotal + ivaAmt) + '\n';
+  
+  // Copia + download
+  navigator.clipboard.writeText(txt).catch(() => {});
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome.replace(/[^a-z0-9]/gi, '_') + '.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 500);
+  toast('Preventivo esportato', false, 'success');
+}
+function clearCart() {
+  if (cart.length === 0) return;
+  if (!confirm('Svuotare il preventivo?')) return;
+  cart = [];
+  document.getElementById('cartNameInput').value = '';
+  saveCartToStorage();
+  updateCartBadge();
+  updateCartView();
+  render();
+}
+
+// ========== REVIEW MODE ==========
+function openReview() {
+  reviewQueue = allVoci.filter(v => v.fonte && v.fonte.startsWith('proposta_') && v.stato === 'draft_da_validare');
+  if (reviewQueue.length === 0) { toast('Nessuna proposta da validare'); return; }
+  reviewIdx = 0;
+  renderReview();
+  document.getElementById('reviewOverlay').classList.add('open');
+}
+function closeReview() {
+  document.getElementById('reviewOverlay').classList.remove('open');
+}
+function renderReview() {
+  const body = document.getElementById('reviewBody');
+  const prog = document.getElementById('reviewProgress');
+  if (reviewIdx >= reviewQueue.length) {
+    body.innerHTML = '<div class="review-done">Fatto. Tutte le proposte esaminate.</div>';
+    prog.textContent = reviewQueue.length + ' / ' + reviewQueue.length;
+    document.getElementById('reviewFooter').style.display = 'none';
+    return;
+  }
+  document.getElementById('reviewFooter').style.display = 'grid';
+  const v = reviewQueue[reviewIdx];
+  prog.textContent = (reviewIdx + 1) + ' / ' + reviewQueue.length;
+  const razionale = v.razionale_proposta ? '<div class="review-razionale"><div class="review-razionale-label">Razionale proposta</div>' + esc(v.razionale_proposta) + '</div>' : '';
+  body.innerHTML = '<div class="review-card">' +
+    '<div class="review-cat-tag">' + esc(v.categoria) + (v.super_categoria ? ' · ' + esc(v.super_categoria) : '') + '</div>' +
+    '<div class="review-voce-name">' + esc(v.voce) + '</div>' +
+    (v.descrizione_breve && v.descrizione_breve !== v.voce ? '<div class="review-descr">' + esc(v.descrizione_breve) + '</div>' : '') +
+    (v.prezzo != null ? '<div class="review-prop-price">' + eur(v.prezzo) + '</div><div class="review-prop-unit">per ' + esc(v.unita_misura) + '</div>' : '') +
+    razionale +
+    '<div class="review-adjust">' +
+      '<input type="number" class="price-input" id="revPrice" step="0.01" placeholder="Modifica prezzo (opz.)" inputmode="decimal">' +
+      '<input type="text" class="note-input" id="revNote" placeholder="Appunto (opzionale)...">' +
+    '</div>' +
+  '</div>';
+}
+async function reviewAction(action) {
+  if (reviewIdx >= reviewQueue.length) return;
+  const v = reviewQueue[reviewIdx];
+  if (action === 'skip') {
+    reviewIdx++; renderReview(); return;
+  }
+  const priceInput = document.getElementById('revPrice');
+  const noteInput = document.getElementById('revNote');
+  const prezzoNuovo = priceInput.value ? parseFloat(priceInput.value) : v.prezzo;
+  const appunto = noteInput.value.trim() || null;
+  const decisione = action === 'ok' ? 'ok' : 'no';
+  const { error } = await sb.rpc('salva_decisione', {
+    p_voce_id: v.id, p_decisione: decisione,
+    p_prezzo_nuovo: decisione === 'ok' ? prezzoNuovo : null,
+    p_appunto: appunto
+  });
+  if (error) { toast('Errore: ' + error.message, true); return; }
+  toast(decisione === 'ok' ? 'Approvata' : 'Scartata', false, 'success');
+  reviewIdx++; renderReview();
+}
+
+// ========== MOBILE MENU ==========
+function openSidebarMobile() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+}
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('open');
+  if (!document.getElementById('cartDrawer').classList.contains('open') && !document.getElementById('reviewOverlay').classList.contains('open')) {
+    document.getElementById('backdrop').classList.remove('show');
+  }
+}
+
+// ========== WIRING ==========
+document.getElementById('menuBtn').addEventListener('click', openSidebarMobile);
+document.getElementById('backdrop').addEventListener('click', () => {
+  closeSidebarMobile();
+  closeCart();
+});
+document.getElementById('cartBtn').addEventListener('click', () => {
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('backdrop').classList.add('show');
+  updateCartView();
+});
+function closeCart() {
+  document.getElementById('cartDrawer').classList.remove('open');
+  if (!document.getElementById('sidebar').classList.contains('open')) {
+    document.getElementById('backdrop').classList.remove('show');
+  }
+}
+document.getElementById('cartClose').addEventListener('click', closeCart);
+document.getElementById('cartClear').addEventListener('click', clearCart);
+document.getElementById('cartExport').addEventListener('click', exportCart);
+document.getElementById('cartNameInput').addEventListener('input', saveCartToStorage);
+document.getElementById('openReviewBtn').addEventListener('click', () => { closeSidebarMobile(); openReview(); });
+document.getElementById('reviewClose').addEventListener('click', closeReview);
+document.getElementById('reviewFooter').querySelectorAll('[data-action]').forEach(btn => {
+  btn.addEventListener('click', () => reviewAction(btn.dataset.action));
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeCart(); closeReview(); closeSidebarMobile();
+  }
+});
 </script>
 
 </body>

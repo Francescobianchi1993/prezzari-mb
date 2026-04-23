@@ -34,8 +34,6 @@ body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color
 .login-btn:disabled { opacity: 0.5; cursor: wait; }
 .login-error { margin-top: 12px; padding: 10px 14px; background: rgba(193,74,34,0.08); border-left: 3px solid var(--accent); color: var(--accent); font-size: 13px; border-radius: 4px; display: none; }
 .login-error.visible { display: block; }
-.login-hint { margin-top: 16px; padding: 12px; background: var(--surface-2); border-radius: 6px; font-size: 12px; color: var(--muted); text-align: center; }
-.login-hint code { background: white; padding: 2px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; }
 
 #app { display: none; }
 #app.ready { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: auto 1fr; grid-template-areas: "header header" "sidebar main"; height: 100vh; }
@@ -51,6 +49,9 @@ body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color
 @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
 .user-badge { display: flex; align-items: center; gap: 10px; padding: 6px 12px 6px 8px; background: var(--surface-2); border-radius: 20px; font-size: 13px; }
 .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px; }
+.user-role { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.user-role.admin { color: var(--accent); }
+.user-role.viewer { color: var(--blue); }
 .btn-logout { background: none; border: 1px solid var(--line); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px; color: var(--muted); }
 .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -88,26 +89,42 @@ body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color
 .voce-name { font-family: 'Instrument Serif', serif; font-size: 17px; font-weight: 400; line-height: 1.3; margin-bottom: 4px; }
 .voce-card.claude .voce-name { font-style: italic; }
 .voce-descr { font-size: 13px; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+.voce-razionale { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; padding: 8px 12px; background: rgba(212,164,58,0.12); border-left: 2px solid var(--claude-border); border-radius: 3px; }
+.voce-razionale-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--orange); margin-bottom: 4px; font-weight: 500; }
+.voce-note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 8px; font-style: italic; }
 .voce-tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
 .tag { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 3px; border: 1px solid var(--line); color: var(--muted); background: var(--bg); }
 .tag.missing { background: var(--accent); color: white; border-color: var(--accent); }
 .tag.bonus { background: var(--green); color: white; border-color: var(--green); }
+.tag.super { background: var(--surface-2); color: var(--ink); border-color: var(--line-strong); font-weight: 500; }
 .voce-right { text-align: right; min-width: 120px; }
 .voce-price { font-family: 'Instrument Serif', serif; font-size: 26px; font-weight: 400; line-height: 1; }
 .voce-price.missing { font-size: 13px; color: var(--accent); font-style: italic; }
 .voce-unit { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 5px; }
 .decision-row { grid-column: 1 / -1; margin-top: 10px; padding-top: 12px; border-top: 1px dashed var(--line); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .dec-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-.price-input { width: 90px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: right; background: var(--surface); }
-.note-input { flex: 1; min-width: 180px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12.5px; background: var(--surface); }
+.price-input { width: 100px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 13px; text-align: right; background: var(--surface); }
+.note-input { flex: 1; min-width: 160px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 12.5px; background: var(--surface); }
+.dec-btn { padding: 6px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; color: var(--muted); }
+.dec-btn:hover { border-color: var(--ink); color: var(--ink); }
+.dec-btn.ok { border-color: var(--green); color: var(--green); }
+.dec-btn.ok:hover { background: var(--green); color: white; }
+.dec-btn.no { border-color: var(--accent); color: var(--accent); }
+.dec-btn.no:hover { background: var(--accent); color: white; }
+.dec-btn.review { border-color: var(--orange); color: var(--orange); }
+.dec-btn.review:hover { background: var(--orange); color: white; }
+
+body.viewer-mode .decision-row { display: none; }
+body.viewer-mode .voce-card { padding-bottom: 16px; }
 
 .loading-main { display: flex; align-items: center; justify-content: center; padding: 80px; color: var(--muted); font-style: italic; }
 
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--ink); color: white; padding: 10px 20px; font-size: 13px; border-radius: 8px; opacity: 0; transition: all 0.3s; pointer-events: none; font-family: 'JetBrains Mono', monospace; z-index: 200; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast.error { background: var(--accent); }
+.toast.success { background: var(--green); }
 
-@media (max-width: 900px) { #app.ready { grid-template-columns: 1fr; grid-template-areas: "header" "main"; } .sidebar { display: none; } .main { padding: 16px 20px 40px; } }
+@media (max-width: 900px) { #app.ready { grid-template-columns: 1fr; grid-template-areas: "header" "main"; } .sidebar { display: none; } .main { padding: 16px 20px 40px; } .voce-card { grid-template-columns: 1fr; } .voce-right { text-align: left; } }
 </style>
 </head>
 <body>
@@ -128,9 +145,6 @@ body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color
       <button type="submit" class="login-btn" id="loginBtn">Entra</button>
       <div class="login-error" id="loginError"></div>
     </form>
-    <div class="login-hint">
-      Test: <code>test@mb.it</code> / <code>test</code>
-    </div>
   </div>
 </div>
 
@@ -145,6 +159,7 @@ body { font-family: 'Geist', system-ui, sans-serif; background: var(--bg); color
       <div class="user-badge">
         <div class="user-avatar" id="userAvatar">?</div>
         <span id="userName">...</span>
+        <span class="user-role" id="userRole"></span>
       </div>
       <button class="btn-logout" onclick="doLogout()">Esci</button>
     </div>
@@ -211,9 +226,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
 async function afterLogin() {
   const { data: profile } = await sb.from('utenti_profili').select('*').eq('id', currentUser.id).single();
-  currentProfile = profile || { nome_display: currentUser.email.split('@')[0] };
+  currentProfile = profile || { nome_display: currentUser.email.split('@')[0], ruolo: 'editor' };
   document.getElementById('userName').textContent = currentProfile.nome_display;
   document.getElementById('userAvatar').textContent = currentProfile.nome_display[0].toUpperCase();
+  const roleEl = document.getElementById('userRole');
+  roleEl.textContent = currentProfile.ruolo || 'editor';
+  roleEl.className = 'user-role ' + (currentProfile.ruolo || 'editor');
+  if (currentProfile.ruolo === 'viewer') document.body.classList.add('viewer-mode');
   document.getElementById('loginOverlay').style.display = 'none';
   document.getElementById('app').classList.add('ready');
   await loadVoci();
@@ -243,8 +262,15 @@ function setupRealtime() {
   sb.channel('voci_changes').on('postgres_changes', { event: '*', schema: 'public', table: 'voci' }, (payload) => {
     if (payload.eventType === 'UPDATE') {
       const idx = allVoci.findIndex(v => v.id === payload.new.id);
-      if (idx >= 0) { allVoci[idx] = payload.new; render(); updateStats(); }
+      if (idx >= 0) allVoci[idx] = payload.new;
+    } else if (payload.eventType === 'INSERT') {
+      allVoci.push(payload.new);
+    } else if (payload.eventType === 'DELETE') {
+      allVoci = allVoci.filter(v => v.id !== payload.old.id);
     }
+    updateStats();
+    buildFilters();
+    render();
   }).subscribe();
 }
 
@@ -266,7 +292,7 @@ function buildFilters() {
   const cats = {};
   allVoci.forEach(v => { cats[v.categoria] = (cats[v.categoria] || 0) + 1; });
   const catEl = document.getElementById('catFilters');
-  catEl.innerHTML = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([k, n]) => 
+  catEl.innerHTML = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([k, n]) =>
     `<button class="filter-btn" data-cat="${esc(k)}">${esc(k)} <span class="count">${n}</span></button>`
   ).join('');
   catEl.querySelectorAll('[data-cat]').forEach(btn => {
@@ -330,40 +356,92 @@ function renderVoce(v) {
   const price = hasPrice ? '<div class="voce-price">€ ' + Number(v.prezzo).toLocaleString('it-IT') + '</div>' : '<div class="voce-price missing">da prezzare</div>';
   const bonus = (v.bonus_applicabili || []).map(b => '<span class="tag bonus">' + b.replace(/_/g, ' ') + '</span>').join('');
   const missing = !hasPrice ? '<span class="tag missing">da prezzare</span>' : '';
+  const superCat = v.super_categoria ? '<span class="tag super">' + esc(v.super_categoria) + '</span>' : '';
+  const razionale = (isClaude && v.razionale_proposta) ? '<div class="voce-razionale"><div class="voce-razionale-label">Razionale proposta</div>' + esc(v.razionale_proposta) + '</div>' : '';
+  const noteCantiere = v.note_cantiere ? '<div class="voce-note">' + esc(v.note_cantiere) + '</div>' : '';
   return '<div class="voce-card ' + (isClaude ? 'claude' : '') + '" data-id="' + v.id + '">' +
     '<div>' +
       '<div class="voce-name">' + esc(v.voce) + '</div>' +
       (v.descrizione_breve && v.descrizione_breve !== v.voce ? '<div class="voce-descr">' + esc(v.descrizione_breve) + '</div>' : '') +
-      '<div class="voce-tags">' + bonus + missing + '<span class="tag">' + esc(v.categoria) + '</span></div>' +
+      razionale +
+      noteCantiere +
+      '<div class="voce-tags">' + superCat + bonus + missing + '<span class="tag">' + esc(v.categoria) + '</span></div>' +
     '</div>' +
     '<div class="voce-right">' + price + '<div class="voce-unit">per ' + esc(v.unita_misura) + '</div></div>' +
     '<div class="decision-row" data-id="' + v.id + '">' +
-      '<span class="dec-label">Nuovo prezzo €</span>' +
+      '<span class="dec-label">Prezzo €</span>' +
       '<input type="number" class="price-input" step="0.01" placeholder="' + (hasPrice ? v.prezzo : '...') + '">' +
       '<input type="text" class="note-input" placeholder="Appunto...">' +
+      '<button class="dec-btn ok" data-dec="ok">OK</button>' +
+      '<button class="dec-btn review" data-dec="review">Review</button>' +
+      '<button class="dec-btn no" data-dec="no">Scarta</button>' +
     '</div>' +
   '</div>';
 }
 
+async function saveDecision(voceId, decisione, row) {
+  const priceInput = row.querySelector('.price-input');
+  const noteInput = row.querySelector('.note-input');
+  const prezzo = priceInput.value === '' ? null : parseFloat(priceInput.value);
+  const appunto = noteInput.value.trim() || null;
+
+  // Log decisione in decisioni_revisione (sempre)
+  const decData = {
+    voce_id: voceId,
+    utente_id: currentUser.id,
+    decisione: decisione,
+    prezzo_nuovo: prezzo,
+    appunto: appunto
+  };
+  const { error: decErr } = await sb.from('decisioni_revisione').insert(decData);
+  if (decErr) { toast('Errore log: ' + decErr.message, true); return; }
+
+  // Aggiorna voci se è OK e c'è un prezzo nuovo
+  if (decisione === 'ok' && prezzo !== null) {
+    const { error: upErr } = await sb.from('voci').update({ prezzo: prezzo, stato: 'validated' }).eq('id', voceId);
+    if (upErr) { toast('Errore prezzo: ' + upErr.message, true); return; }
+  } else if (decisione === 'review') {
+    await sb.from('voci').update({ stato: 'review' }).eq('id', voceId);
+  } else if (decisione === 'no') {
+    await sb.from('voci').update({ stato: 'rejected' }).eq('id', voceId);
+  }
+
+  toast('Salvato: ' + decisione.toUpperCase(), false, 'success');
+  priceInput.value = '';
+  noteInput.value = '';
+}
+
 function attachListeners() {
+  // Se viewer, nessun listener (gli input sono nascosti via CSS ma per sicurezza)
+  if (currentProfile && currentProfile.ruolo === 'viewer') return;
+
+  document.querySelectorAll('.dec-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const row = e.target.closest('.decision-row');
+      const id = parseInt(row.dataset.id);
+      const dec = btn.dataset.dec;
+      await saveDecision(id, dec, row);
+    });
+  });
+
+  // Enter nel prezzo = OK rapido
   document.querySelectorAll('.price-input').forEach(inp => {
-    inp.addEventListener('change', async (e) => {
-      const id = parseInt(e.target.closest('.decision-row').dataset.id);
-      const val = e.target.value === '' ? null : parseFloat(e.target.value);
-      if (val === null) return;
-      const { error } = await sb.from('voci').update({ prezzo: val, stato: 'validated' }).eq('id', id);
-      if (error) toast('Errore: ' + error.message, true);
-      else { toast('Prezzo aggiornato'); e.target.value = ''; }
+    inp.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter') {
+        const row = e.target.closest('.decision-row');
+        const id = parseInt(row.dataset.id);
+        await saveDecision(id, 'ok', row);
+      }
     });
   });
 }
 
 function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-function toast(msg, err) {
+function toast(msg, err, variant) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast show' + (err ? ' error' : '');
+  t.className = 'toast show' + (err ? ' error' : (variant === 'success' ? ' success' : ''));
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 2000);
 }
